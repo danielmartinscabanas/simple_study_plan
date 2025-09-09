@@ -1,0 +1,413 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap');
+
+/*
+  Design Tokens
+  - Color palette and core variables for light/dark themes
+  - Keep values identical to preserve current visuals/behavior
+*/
+:root {
+  --bg: #fafafa;
+  --text: #111827;
+  --card-bg: #ffffff;
+  --title-row: #d1d1d1;
+  --odd-row: #fafafa;
+  --even-row: #f1f1f1;
+  --today-highlight: rgba(52, 154, 121, 0.30); /* green @ 30% alpha */
+  --border: #e5e7eb;
+  --muted-text: #6b7280;
+  --icon: #8d8d8d;
+  --danger: #ef4444;
+  --accent: #349a79;
+}
+
+:root[data-theme="dark"] {
+  --bg: #000000;
+  --text: #e5e7eb;
+  --card-bg: #0a0a0a;
+  --title-row: #1c1c1c;
+  --odd-row: #0d0d0d;
+  --even-row: #111111;
+  --today-highlight: rgba(16, 185, 129, 0.28); /* teal-ish accent @ ~30% */
+  --border: #232323;
+  --muted-text: #9ca3af;
+  --icon: #9ca3af;
+  --danger: #f87171;
+  --accent: #10b981;
+}
+
+/*
+  Base / Reset
+*/
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+html, body { min-height: 100vh; }
+@supports (min-height: 100svh) {
+  html, body { min-height: 100svh; }
+}
+@supports (height: 100dvh) {
+  html, body { min-height: 100dvh; }
+}
+
+body {
+  font-family: 'Ubuntu', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  margin: 0 auto;
+  max-width: 720px;
+  padding: 16px;
+  line-height: 1.25;
+  color: var(--text);
+  background: var(--bg);
+}
+
+hr { display: none; }
+
+/*
+  Typography
+*/
+h2 { margin: 0 0 12px; }
+h3 {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+h3::after {
+  content: "";
+  height: 1px;
+  background: var(--border);
+  flex: 1 1 auto;
+}
+
+/*
+  Sections / Cards
+*/
+section {
+  margin: 6px 0 12px;
+  padding: 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 12px;
+}
+section > * + * { margin-top: 6px; margin-bottom: 0; }
+
+/*
+  Header
+*/
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-right: 0;
+}
+.header-actions { display: flex; align-items: center; gap: 8px; }
+
+/*
+  Study Planner Layout
+*/
+#settings {
+  /* Two settings side-by-side on a single row */
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+  align-items: center;
+}
+.setting-item {
+  display: grid;
+  grid-template-columns: auto 110px; /* label | compact input */
+  align-items: center;
+  gap: 8px;
+}
+.setting-item label { margin: 0; color: var(--muted-text); }
+.setting-item input[type="number"] { width: 110px; }
+
+/* Simple tooltip that shows on hover/focus */
+.setting-item[data-tooltip] { position: relative; }
+.setting-item[data-tooltip]:hover::after,
+.setting-item[data-tooltip]:focus-within::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 6px;
+  background: var(--card-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.2;
+  max-width: 320px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  z-index: 5;
+}
+
+#subjects-list { overflow-x: auto; }
+
+/* Subjects table: simple, predictable sizing */
+.subjects-table {
+  /* Simple table with no gaps so corner radii are visible */
+  width: 100%;
+  border-collapse: separate; /* allow rounded corners on cells */
+  border-spacing: 0;         /* remove gaps between cells */
+  table-layout: fixed;
+  font-size: 12px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+.subjects-table th, .subjects-table td { background-color: var(--card-bg); border: 0px solid var(--border); padding: 4px; text-align: left; overflow: hidden; text-overflow: ellipsis; }
+.subjects-table col.col-name { width: 20%; }
+.subjects-table col.col-desc { width: 48%; }
+.subjects-table col.col-date { width: 18%; }
+.subjects-table col.actions-col { width: 14%; }
+.subjects-table thead th {border-top-width: 1px; border-top-color: var(--border); background: var(--title-row); border-bottom: 1px solid #6b7280}
+/* Round only the top-left and top-right header corners */
+.subjects-table thead th:first-child { border-left-width: 1px; border-top-color: var(--border); border-top-left-radius: 6px; }
+.subjects-table thead th:last-child  { border-right-width: 1px; border-top-width: 1px; border-top-color: var(--border); border-top-right-radius: 6px; }
+/* Round only the bottom-left and bottom-right corners of the last body row */
+.subjects-table tbody tr:last-child td:first-child { border-bottom-left-radius: 6px; }
+.subjects-table tbody tr:last-child td:last-child  { border-bottom-right-radius: 6px; }
+.subjects-table td.actions-col { overflow: visible; text-align: right; }
+.subjects-table td.actions-col .row-actions { justify-content: flex-end; }
+.row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.row-actions button { height: auto; padding: 5px 10px; width: auto; max-width: 100%; }
+.subjects-table input { width: 100%; box-sizing: border-box; min-width: 0; }
+
+/* Row striping: use your variables */
+.subjects-table tbody tr:nth-child(odd) td { background: var(--odd-row); border-bottom: 1px solid var(--border)}
+.subjects-table tbody tr:nth-child(even) td { background: var(--even-row); border-bottom: 1px solid var(--border) }
+
+/* Study plan table (duplicate of subjects table styles for future divergence) */
+#study-plan { overflow-x: auto; }
+.studyplan-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  font-size: 12px;
+  margin-bottom: 0px;
+}
+.studyplan-table th, .studyplan-table td { background-color: var(--card-bg); border: 0px solid var(--border); padding: 4px; text-align: left; overflow: hidden; text-overflow: ellipsis; }
+.studyplan-table col.col-day { width: 120px; }
+.studyplan-table col.col-subject { width: auto; }
+.studyplan-table thead th { border-top-width: 1px; border-top-color: var(--border); background: var(--title-row); border-bottom: 1px solid #6b7280 }
+.studyplan-table thead th:first-child { border-left-width: 1px; border-top-color: var(--border); border-top-left-radius: 6px; }
+.studyplan-table thead th:last-child  { border-right-width: 1px; border-top-width: 1px; border-top-color: var(--border); border-top-right-radius: 6px; }
+.studyplan-table tbody tr:last-child td:first-child { border-bottom-left-radius: 6px; }
+.studyplan-table tbody tr:last-child td:last-child  { border-bottom-right-radius: 6px; }
+.studyplan-table tbody tr:nth-child(odd) td { background: var(--odd-row); border-bottom: 1px solid var(--border) }
+.studyplan-table tbody tr:nth-child(even) td { background: var(--even-row); border-bottom: 1px solid var(--border) }
+/* Highlight current day row */
+.studyplan-table tbody tr.is-today td { background: var(--today-highlight) !important; }
+
+#study-plan {
+  display: grid;
+  gap: 10px;
+}
+
+/* No checkboxes in the study planner UI */
+
+/*
+  Inputs
+*/
+input[type="text"],
+input[type="number"],
+input[type="date"] {
+  font-size: 12px;
+  width: 100%;
+  height: 30px;
+  padding: 4px 8px;
+  margin: 0px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text);
+  border-radius: 4px;
+  vertical-align: middle;
+}
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.35);
+}
+
+/* New Subject Form */
+#new-subject-form {
+  display: grid;
+  grid-template-columns: 1.2fr 2fr 1fr auto; /* name, description, date, add */
+  gap: 10px;
+}
+#new-subject-form button {
+  width: auto;
+  height: 30px;
+  padding: 0 12px;
+}
+/* Accent add button */
+.add-subject-btn {
+  background: var(--text);
+  color: var(--bg);
+  font-weight: 600;
+}
+/* Generic button variants for row actions */
+.btn { border: none; background: transparent; color: var(--text); }
+.btn-ghost { color: var(--text); }
+.btn-primary { color: var(--accent);}
+.btn-danger { color: var(--danger); }
+
+/*
+  Buttons
+*/
+button {
+  width: 30px;
+  height: 30px;
+  padding: 8px 10px;
+  border: 0px solid #e5e7eb;
+  border-radius: 6px;
+  background: var(--card-bg);
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  vertical-align: middle;
+  transition: color 1000ms ease, background-color 1000ms ease;
+}
+
+/* Per-row action buttons (hidden until hover/focus) */
+#todo-list > div button,
+#done-list > div button {
+  margin-left: auto;
+  margin-right: 0;
+  padding: 0;
+  width: auto;
+  color: var(--icon);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1000ms ease, color 1000ms ease;
+}
+#todo-list > div:hover button,
+#todo-list > div:focus-within button,
+#done-list > div:hover button,
+#done-list > div:focus-within button {
+  opacity: 1;
+  pointer-events: auto;
+}
+#todo-list > div button:hover,
+#done-list > div button:hover { color: var(--danger); }
+
+/* Header icon buttons */
+#theme-toggle,
+#export-plans {
+  width: 36px;
+  height: 36px;
+  color: var(--text);
+  background-color: var(--bg);
+  font-weight: 700;
+  transition: none;
+  padding-right: 0px;
+}
+.page-header #theme-toggle,
+.page-header #export-plans {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 150ms ease;
+}
+.page-header:hover #theme-toggle,
+.page-header:focus-within #theme-toggle,
+.page-header:hover #export-plans,
+.page-header:focus-within #export-plans {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Modal
+   - Backdrop and card */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal.open { display: flex; }
+.modal-card {
+  background: var(--card-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  width: min(640px, 92vw);
+  display: grid;
+  gap: 8px;
+}
+.modal-title { font-size: 14px; font-weight: 500; }
+#share-url { width: 100%; height: 36px; font-size: 12px; }
+.modal-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; }
+.modal-actions { display: flex; align-items: center; gap: 8px; }
+.modal-actions button { width: 36px; height: 36px; }
+
+/* Copy button icon */
+#copy-url,
+#close-modal {
+  width: 36px;
+  height: 36px;
+  color: var(--text);
+  font-weight: 700;
+  transition: none;
+  padding-right: 0px;
+}
+#copy-url .icon-img { width: 18px; height: 18px; display: block; }
+:root[data-theme="dark"] #copy-url .icon-img { filter: invert(1); }
+
+/*
+  Minimal Install Banner
+*/
+.install-banner {
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+  background: var(--card-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  z-index: 1000;
+}
+.install-banner.show { display: flex; }
+.install-banner #install-cta { height: 28px; padding: 0 10px; width: auto; }
+.install-banner #install-close { width: 28px; height: 28px; }
+
+/*
+  Responsive
+  - Mobile-friendly sizes and banner font-size for small/coarse devices
+*/
+@media (max-width: 480px), (pointer: coarse) {
+  .install-banner { font-size: 14px; }
+}
+@media (max-width: 480px), (pointer: coarse) {
+  section { font-size: 18px; }
+  h3 { font-size: 16px; }
+  input[type="text"],
+  input[type="number"],
+  input[type="date"] { height: 42px; font-size: 16px; padding: 10px 12px; }
+  /* On small screens keep it tidy but stacked */
+  #settings { grid-template-columns: 1fr; gap: 8px; }
+  .setting-item { grid-template-columns: 1fr; }
+  .setting-item input[type="number"] { width: 100%; }
+  #new-subject-form { grid-template-columns: 1fr; }
+  #new-subject-form button { height: 42px; }
+  /* Tighter action buttons on small screens */
+  #subjects-list .row-actions { gap: 4px; }
+  #subjects-list .row-actions button { padding: 0 8px; font-size: 11px; }
+}

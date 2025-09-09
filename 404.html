@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Syncing study plan…</title>
+  <meta name="robots" content="noindex" />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 24px; line-height: 1.4; }
+    .card { max-width: 640px; margin: 10vh auto; border: 1px solid #ddd; border-radius: 12px; padding: 16px; }
+    .muted { color: #666; font-size: 14px; }
+    code { background: #f5f5f5; padding: 2px 4px; border-radius: 4px; }
+    a { color: #0b74de; text-decoration: none; }
+  </style>
+  <script>
+    (function(){
+      const BASE_PATH = '/simple_study_plan/';
+      const BASE_URL = 'https://danielmartinscabanas.github.io' + BASE_PATH;
+      const base64UrlToBytes = (b64url) => {
+        let b64 = (b64url || '').replace(/-/g, '+').replace(/_/g, '/');
+        while (b64.length % 4) b64 += '=';
+        const binary = atob(b64);
+        const out = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) out[i] = binary.charCodeAt(i);
+        return out;
+      };
+      const lzwDecompress = (packed) => {
+        const CLEAR = 4095;
+        const codes = [];
+        let bitBuffer = 0, bitCount = 0;
+        for (let i = 0; i < packed.length; i++) {
+          bitBuffer |= (packed[i] << bitCount);
+          bitCount += 8;
+          while (bitCount >= 12) {
+            const code = bitBuffer & 0x0fff;
+            codes.push(code);
+            bitBuffer >>= 12;
+            bitCount -= 12;
+          }
+        }
+        const reset = () => {
+          const dict = [];
+          for (let i = 0; i < 256; i++) dict[i] = String.fromCharCode(i);
+          return { dict, size: 256 };
+        };
+        let { dict, size } = reset();
+        let w = '';
+        let result = '';
+        for (let i = 0; i < codes.length; i++) {
+          const k = codes[i];
+          if (k === CLEAR) { ({ dict, size } = reset()); w=''; continue; }
+          let entry;
+          if (k < size) entry = dict[k];
+          else if (k === size && w) entry = w + w[0];
+          else return new Uint8Array(0);
+          result += entry;
+          if (w) dict[size++] = w + entry[0];
+          w = entry;
+        }
+        const out = new Uint8Array(result.length);
+        for (let i = 0; i < result.length; i++) out[i] = result.charCodeAt(i) & 0xff;
+        return out;
+      };
+      const decodeSharePayload = (payload) => {
+        const sep = payload.indexOf('~');
+        if (sep > 0 && sep < 4) {
+          const mode = payload.slice(0, sep);
+          const body = payload.slice(sep + 1);
+          if (mode === 'c') {
+            const bytes = base64UrlToBytes(body);
+            const dec = lzwDecompress(bytes);
+            const json = new TextDecoder().decode(dec);
+            return JSON.parse(json);
+          } else if (mode === 'p') {
+            const bytes = base64UrlToBytes(body);
+            const json = new TextDecoder().decode(bytes);
+            return JSON.parse(json);
+          }
+        }
+        const bytes = base64UrlToBytes(payload);
+        const json = new TextDecoder().decode(bytes);
+        return JSON.parse(json);
+      };
+      try {
+        const p = location.pathname || '';
+        const idx = p.indexOf(BASE_PATH);
+        const rest = idx === -1 ? '' : p.slice(idx + BASE_PATH.length).replace(/^\/+/, '');
+        if (rest) {
+          const parsed = decodeSharePayload(rest);
+          if (!parsed || typeof parsed !== 'object') throw new Error('Invalid data');
+          const subjects = parsed.subjects || parsed || {};
+          localStorage.setItem('subjects', JSON.stringify(subjects));
+          if (parsed.settings && typeof parsed.settings === 'object') {
+            localStorage.setItem('settings', JSON.stringify({ settings: parsed.settings }));
+          }
+          location.replace(BASE_URL);
+          return;
+        }
+      } catch (e) {
+        console.error('URL import failed on 404:', e);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div class="card">
+    <h3>Could not process shared URL</h3>
+    <p class="muted">The link may be malformed. Go back to <a href="/simple_study_plan/">Simple Study Plan</a> and try again.</p>
+  </div>
+</body>
+</html>
