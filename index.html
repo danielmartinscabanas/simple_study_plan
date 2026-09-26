@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/css/styles.css?v=10">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='50%25' x='50%25' dominant-baseline='middle' text-anchor='middle' font-size='48'%3E%F0%9F%93%9A%3C/text%3E%3C/svg%3E">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#349a79">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+    <title data-i18n="appTitle">Simple Study Plan</title>
+</head>
+<body>
+    <div class="page-header">
+        <h2 data-i18n="appTitle">Simple Study Plan</h2>
+        <div class="header-actions">
+            <button id="export-plans" aria-label="Export plans" title="Export plans" data-i18n-aria="exportPlans" data-i18n-title="exportPlans">↗</button>
+            <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" data-i18n-aria="toggleTheme" data-i18n-title="toggleTheme">☽</button>
+            <select id="lang-select" aria-label="Language" title="Language" data-i18n-aria="langSelect" data-i18n-title="langSelect">
+                <option value="en">🇺🇸</option>
+                <option value="pt">🇧🇷</option>
+            </select>
+        </div>
+    </div>
+    <section id="settings-section">
+        <h3 data-i18n="settings">Settings</h3>
+        <hr />
+        <div id="settings">
+            <div class="setting-item" data-tooltip="How many study blocks you want to complete each day (2–99). Higher values allocate more blocks daily and spread time across subjects accordingly." data-i18n-tooltip="tooltipBlocks">
+                <label for="hours-per-day" data-i18n="blocksPerDay">Total Study Blocks per Day</label>
+                <input id="hours-per-day" type="number" min="2" max="99" step="1" placeholder="2" />
+            </div>
+            <div class="setting-item" data-tooltip="How strongly the plan prioritizes closer exams (1–99). Higher specificity concentrates blocks on subjects with nearer test dates; lower values distribute more evenly." data-i18n-tooltip="tooltipSpecificity">
+                <label for="specificity-degree" data-i18n="specificity">Specificity Degree</label>
+                <input id="specificity-degree" type="number" min="1" max="99" step="1" placeholder="1" />
+            </div>
+        </div>
+        <div id="subjects-list"></div>
+        <form id="new-subject-form">
+            <input id="subject-name" name="subjectName" type="text" placeholder="Subject Name" required data-i18n-placeholder="subjectName" />
+            <input id="subject-description" name="subjectDescription" type="text" placeholder="Subject Description" data-i18n-placeholder="subjectDescription" />
+            <input id="test-date" name="testDate" type="date" placeholder="Date" required data-i18n-placeholder="date" />
+            <input id="test-time" name="testTime" type="time" placeholder="Time" data-i18n-placeholder="time" />
+            <input id="test-location" name="location" type="text" placeholder="Location" data-i18n-placeholder="location" />
+            <button type="submit" class="add-subject-btn" data-i18n="addSubject">Add Subject</button>
+        </form>
+    </section>
+
+    <section id="study-plan-section">
+        <h3 data-i18n="dailyPlan">Daily Study Blocks Plan</h3>
+        <hr />
+        <div id="study-plan"></div>
+    </section>
+    <!-- Share URL Modal -->
+    <div id="export-modal" class="modal" aria-hidden="true" role="dialog">
+        <div class="modal-card" role="document">
+            <div class="modal-title" data-i18n="shareUrl">Share URL</div>
+            <div class="modal-row">
+                <input id="share-url" type="text" readonly aria-label="Share URL" data-i18n-aria="shareUrl" />
+                <div class="modal-actions">
+                    <button id="copy-url" aria-label="Copy URL" title="Copy URL" data-i18n-aria="copyUrl" data-i18n-title="copyUrl"><img src="assets/icons/copy-icon.svg" alt="" class="icon-img" width="18" height="18" /></button>
+                    <button id="close-modal" aria-label="Close" title="Close" data-i18n-aria="close" data-i18n-title="close">✕</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Minimal Install Banner (mobile only) -->
+    <div id="install-banner" class="install-banner" aria-hidden="true">
+        <span data-i18n="installPrompt">Install app?</span>
+        <button id="install-cta" aria-label="Install app" title="Install" data-i18n="install" data-i18n-aria="installApp" data-i18n-title="install">Install</button>
+        <button id="install-close" aria-label="Dismiss" title="Dismiss" data-i18n-aria="dismiss" data-i18n-title="dismiss">✕</button>
+    </div>
+    <script>
+        const TRANSLATIONS = {
+            "en": {
+                "appTitle": "Simple Study Plan",
+                "langSelect": "Language",
+                "exportPlans": "Export plans",
+                "toggleTheme": "Toggle theme",
+                "settings": "Settings",
+                "blocksPerDay": "Total Study Blocks per Day",
+                "specificity": "Specificity Degree",
+                "tooltipBlocks": "How many study blocks you want to complete each day (2–99). Higher values allocate more blocks daily and spread time across subjects accordingly.",
+                "tooltipSpecificity": "How strongly the plan prioritizes closer exams (1–99). Higher specificity concentrates blocks on subjects with nearer test dates; lower values distribute more evenly.",
+                "subjectName": "Subject Name",
+                "subjectDescription": "Subject Description",
+                "date": "Date",
+                "time": "Time",
+                "location": "Location",
+                "addSubject": "Add Subject",
+                "dailyPlan": "Daily Study Blocks Plan",
+                "shareUrl": "Share URL",
+                "copyUrl": "Copy URL",
+                "close": "Close",
+                "installPrompt": "Install app?",
+                "install": "Install",
+                "installApp": "Install app",
+                "dismiss": "Dismiss",
+                "subjects": "Subjects",
+                "name": "Name",
+                "description": "Description",
+                "delete": "Delete",
+                "day": "Day",
+                "emptyPlan": "No study plan yet. Add subjects with future dates.",
+                "dateFromTomorrow": "Please choose a date from tomorrow onwards.",
+                "weekdays": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+            },
+            "pt": {
+                "appTitle": "Simple Study Plan",
+                "langSelect": "Idioma",
+                "exportPlans": "Exportar planos",
+                "toggleTheme": "Alternar tema",
+                "settings": "Configurações",
+                "blocksPerDay": "Blocos de Estudo por Dia",
+                "specificity": "Grau de Especificidade",
+                "tooltipBlocks": "Quantos blocos de estudo você quer completar por dia (2–99). Valores maiores alocam mais blocos diários e distribuem o tempo entre as matérias.",
+                "tooltipSpecificity": "Quão fortemente o plano prioriza provas mais próximas (1–99). Maior especificidade concentra blocos nas matérias com datas mais próximas; valores menores distribuem de forma mais uniforme.",
+                "subjectName": "Nome da Matéria",
+                "subjectDescription": "Descrição",
+                "date": "Data",
+                "time": "Hora",
+                "location": "Local",
+                "addSubject": "Adicionar Matéria",
+                "dailyPlan": "Plano Diário de Blocos",
+                "shareUrl": "URL de Compartilhamento",
+                "copyUrl": "Copiar URL",
+                "close": "Fechar",
+                "installPrompt": "Instalar app?",
+                "install": "Instalar",
+                "installApp": "Instalar app",
+                "dismiss": "Dispensar",
+                "subjects": "Matérias",
+                "name": "Nome",
+                "description": "Descrição",
+                "delete": "Excluir",
+                "day": "Dia",
+                "emptyPlan": "Nenhum plano ainda. Adicione matérias com datas futuras.",
+                "dateFromTomorrow": "Escolha uma data a partir de amanhã.",
+                "weekdays": ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"]
+            }
+        };
+
+        class I18n {
+            constructor(translations){
+                this.translations = translations;
+                this.storage = new JsonStorage('lang');
+                const saved = this.storage.load();
+                const nav = (navigator.language || 'en').toLowerCase();
+                const fallback = nav.startsWith('pt') ? 'pt' : 'en';
+                this.lang = (saved === 'en' || saved === 'pt') ? saved : fallback;
+            }
+            t(key){
+                const pack = this.translations[this.lang] || this.translations.en;
+                const val = pack[key];
+                if (val !== undefined) return val;
+                return this.translations.en[key] ?? key;
+            }
+            set(lang){
+                if (lang !== 'en' && lang !== 'pt') return;
+                this.lang = lang;
+                this.storage.save(lang);
+                this.apply();
+            }
+            apply(){
+                document.documentElement.lang = this.lang === 'pt' ? 'pt-BR' : 'en';
+                document.querySelectorAll('[data-i18n]').forEach((el) => {
+                    const key = el.getAttribute('data-i18n');
+                    if (!key) return;
+                    const text = this.t(key);
+                    if (el.tagName === 'TITLE') document.title = text;
+                    else el.textContent = text;
+                });
+                document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+                    const key = el.getAttribute('data-i18n-placeholder');
+                    if (key) el.setAttribute('placeholder', this.t(key));
+                });
+                document.querySelectorAll('[data-i18n-title]').forEach((el) => {
+                    const key = el.getAttribute('data-i18n-title');
+                    if (key) el.setAttribute('title', this.t(key));
+                });
+                document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+                    const key = el.getAttribute('data-i18n-aria');
+                    if (key) el.setAttribute('aria-label', this.t(key));
+                });
+                document.querySelectorAll('[data-i18n-tooltip]').forEach((el) => {
+                    const key = el.getAttribute('data-i18n-tooltip');
+                    if (key) el.setAttribute('data-tooltip', this.t(key));
+                });
+                const sel = document.getElementById('lang-select');
+                if (sel) sel.value = this.lang;
+            }
+        }
+
+        class JsonStorage {
+            constructor(storageKey){
+                this.storageKey = storageKey;
+            }
+
+            save(dataObject){
+                localStorage.setItem(this.storageKey, JSON.stringify(dataObject));
+            }
+
+            load(){
+                const json = localStorage.getItem(this.storageKey);
+                if (!json) return null;
+                try {
+                    return JSON.parse(json);
+                } catch (e) {
+                    try { localStorage.removeItem(this.storageKey); } catch (_) {}
+                    console.warn(`Invalid JSON in localStorage for key '${this.storageKey}'. Clearing it.`, e);
+                    return null;
+                }
+            }
+
+            remove(){
+                localStorage.removeItem(this.storageKey);
+            }
+        }
+
+        const i18n = new I18n(TRANSLATIONS);
+    
+        
+        class Settings {
+            constructor(){
+                this.settingsStorage = new JsonStorage('settings');
+            }
+
+            fetchExisting(){
+                let settings = this.settingsStorage.load();
+                if (settings && typeof settings === "object" && Object.keys(settings).length === 0) {
+                    settings = {"settings": {}};
+                }
+                return settings;
+            }
+
+            set(param, value){
+                const settings = this.fetchExisting();
+                settings["settings"][param] = value;
+                this.settingsStorage.save(settings);
+                return true;
+            }
+        }
+        
+        class Subjects{
+            constructor(){
+                this.storage = new JsonStorage('subjects');
+                this.subjects = this.storage.load() || {};
+                this.settings = new Settings();
+                this.editingId = null;
+            }
+
+            add(subjectName, subjectDescription, testDate, testTime='', location=''){
+                try{
+                    // Basic validation: name and test date are required
+                    subjectName = (subjectName ?? '').trim();
+                    testDate = (testDate ?? '').trim();
+                    testTime = (testTime ?? '').trim();
+                    location = (location ?? '').trim();
+                    if (!subjectName || !testDate) {
+                        console.warn('Subject name and test date are required.');
+                        return false;
+                    }
+                    // Enforce date must be at least tomorrow (no past or today)
+                    const pad2 = (n) => String(n).padStart(2, '0');
+                    const t = new Date();
+                    t.setHours(0,0,0,0);
+                    t.setDate(t.getDate() + 1);
+                    const minDateStr = `${t.getFullYear()}-${pad2(t.getMonth()+1)}-${pad2(t.getDate())}`;
+                    if (testDate < minDateStr) {
+                        console.warn('Test date must be from tomorrow onwards.');
+                        return false;
+                    }
+                    const subjectId = crypto.randomUUID();
+                    const existing = this.subjects || {};
+                    const maxOrder = Math.max(-1, ...Object.values(existing).map(t => (t && typeof t.order === 'number') ? t.order : -1));
+                    const newSubject = {"subjectName": subjectName, "subjectDescription": subjectDescription, "testDate": testDate, "testTime": testTime, "location": location, "order": maxOrder + 1};
+                    this.subjects[subjectId] = newSubject;
+                    this.storage.save(this.subjects);
+                    console.log(`Subject '${subjectName}' created.`);
+
+                    return true;
+
+                } catch(err){
+                    console.error(`An error ocurred on creating subject '${subjectName}':`, err.message);
+
+                    return false;
+                }
+            }
+
+            remove(subjectId){
+                try {
+                    delete this.subjects[subjectId];
+                    this.storage.save(this.subjects);
+                    console.log(`Subject '${subjectId}' removed.`);
+
+                    return true;
+                } catch(err){
+                    console.error(`An error ocurred on removing subject '${subjectId}':`, err.message);
+
+                    return false;
+                }
+            }
+
+            update(subjectId, subjectName=undefined, subjectDescription=undefined, testDate=undefined, testTime=undefined, location=undefined){
+                try{
+                    const subject = this.subjects?.[subjectId];
+                        if (!subject) {
+                            console.error(`Subject '${subjectId}' not found.`);
+                            return false;
+                        }
+
+                    if(subjectName !== undefined){
+                        subject.subjectName = subjectName;
+                    }
+
+                    if(subjectDescription !== undefined){
+                        subject.subjectDescription = subjectDescription;
+                    }
+
+                    if(testDate !== undefined){
+                        subject.testDate = testDate;
+                    }
+
+                    if(testTime !== undefined){
+                        subject.testTime = testTime;
+                    }
+
+                    if(location !== undefined){
+                        subject.location = location;
+                    }
+
+                    this.subjects[subjectId] = subject;
+                    this.storage.save(this.subjects);
+                    return true;
+
+                }catch(err){
+                    console.error(`An error ocurred on removing subject '${subjectId}':`, err.message);
+                    return false;
+                }
+            }
+
+            render(){
+                const hoursPerDay = document.getElementById('hours-per-day');
+                const specificityDegree = document.getElementById('specificity-degree');
+                const subjectsList = document.getElementById('subjects-list');
+                const subjects = this.storage.load() || {};
+                this.subjects = subjects;
+
+                // Populate settings
+                const settingsObj = this.settings.fetchExisting()?.settings || {};
+                const clamp = (v, lo, hi, def) => {
+                    const n = Math.floor(Number(v));
+                    if (!Number.isFinite(n)) return def;
+                    return Math.min(hi, Math.max(lo, n));
+                };
+                if (hoursPerDay) hoursPerDay.value = clamp(settingsObj['hours-per-day'], 2, 99, 2);
+                if (specificityDegree) specificityDegree.value = clamp(settingsObj['specificity-degree'], 1, 99, 1);
+
+                if (!subjectsList) return;
+                const entries = Object.entries(subjects).sort((a, b) => {
+                    const da = (a[1]?.testDate || '').trim();
+                    const db = (b[1]?.testDate || '').trim();
+                    if (da !== db) return da < db ? -1 : 1;
+                    const ta = (a[1]?.testTime || '').trim();
+                    const tb = (b[1]?.testTime || '').trim();
+                    if (ta !== tb) return ta < tb ? -1 : 1;
+                    return 0;
+                });
+
+                const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));
+
+                if (!entries.length) {
+                    subjectsList.innerHTML = '<div class="empty"></div>';
+                    return;
+                }
+
+                let html = `<h3>${i18n.t('subjects')}</h3 >`;
+                html += '<table class="subjects-table">';
+                html += '<colgroup>'+
+                        '<col class="col-name">'+
+                        '<col class="col-desc">'+
+                        '<col class="col-date">'+
+                        '<col class="col-time">'+
+                        '<col class="col-location">'+
+                        '<col class="actions-col">'+
+                        '</colgroup>';
+                html += `<thead><tr><th>${i18n.t('name')}</th><th>${i18n.t('description')}</th><th>${i18n.t('date')}</th><th>${i18n.t('time')}</th><th>${i18n.t('location')}</th><th class="actions-col"></th></tr></thead>`;
+                html += '<tbody>';
+                entries.forEach(([id, subject], idx) => {
+                    const isEditing = this.editingId === id;
+                    const isNext = idx === 0;
+                    const rowClass = isNext ? ' class="is-next"' : '';
+                    const name = esc(subject?.subjectName);
+                    const desc = esc(subject?.subjectDescription);
+                    const date = esc(subject?.testDate);
+                    const time = esc(subject?.testTime ?? '');
+                    const loc = esc(subject?.location ?? '');
+                    if (isEditing) {
+                        html += `
+                          <tr data-id="${id}"${rowClass}>
+                            <td style="padding-bottom:0px;"><input type="text" name="name" value="${name}" style="height:18px; padding:2px"></td>
+                            <td style="padding-bottom:0px;"><input type="text" name="description" value="${desc}" style="height:18px; padding:2px"></td>
+                            <td style="padding-bottom:0px;"><input type="date" name="date" value="${date}" style="height:18px; padding:0px"></td>
+                            <td style="padding-bottom:0px;"><input type="time" name="time" value="${time}" style="height:18px; padding:0px"></td>
+                            <td style="padding-bottom:0px;"><input type="text" name="location" value="${loc}" style="height:18px; padding:2px"></td>
+                            <td class="actions-col"><div class="row-actions">
+                              <button class="btn btn-primary" data-action="save" data-id="${id}" style="font-size:18px;padding-bottom:0px;">✓</button>
+                              <button class="btn btn-danger" data-action="cancel" data-id="${id}" style="font-size:18px;padding-bottom:0px;">⨯</button>
+                            </div></td>
+                          </tr>`;
+                    } else {
+                        html += `
+                          <tr data-id="${id}"${rowClass}>
+                            <td>${name}</td>
+                            <td>${desc}</td>
+                            <td>${date}</td>
+                            <td>${time}</td>
+                            <td>${loc}</td>
+                            <td class="actions-col"><div class="row-actions">
+                              <button class="btn btn-ghost" data-action="edit" data-id="${id}">🖋</button>
+                              <button class="btn btn-danger" data-action="delete" data-id="${id}" title="${i18n.t('delete')}">🗑</button>
+                            </div></td>
+                          </tr>`;
+                    }
+                });
+                html += '</tbody></table>';
+                subjectsList.innerHTML = html;
+            }
+        }
+
+        class Theme {
+            constructor(toggleEl){
+                this.toggleEl = toggleEl;
+                this.storage = new JsonStorage('theme');
+            }
+            apply(mode){
+                document.body.setAttribute('data-theme', mode);
+                document.documentElement.setAttribute('data-theme', mode);
+                if (this.toggleEl) this.toggleEl.textContent = mode === 'dark' ? '☀' : '☽';
+                this.storage.save(mode);
+            }
+            init(){
+                const saved = this.storage.load() || 'light';
+                this.apply(saved);
+                if (this.toggleEl) {
+                    this.toggleEl.addEventListener('click', () => {
+                        const next = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                        this.apply(next);
+                    });
+                }
+            }
+        }
+
+        class Share {
+            constructor(app, baseUrl, basePath, modal, inputEl, copyBtn, closeBtn){
+                this.app = app;
+                this.baseUrl = baseUrl;
+                this.basePath = basePath;
+                this.modal = modal;
+                this.inputEl = inputEl;
+                this.copyBtn = copyBtn;
+                this.closeBtn = closeBtn;
+            }
+
+            static bytesToBase64Url(bytes){
+                let binary = '';
+                for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+                return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/,'');
+            }
+            static base64UrlToBytes(b64url){
+                let b64 = (b64url || '').replace(/-/g, '+').replace(/_/g, '/');
+                while (b64.length % 4) b64 += '=';
+                const binary = atob(b64);
+                const out = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) out[i] = binary.charCodeAt(i);
+                return out;
+            }
+            static lzwCompress(bytes){
+                const CLEAR = 4095;
+                let dict = new Map();
+                for (let i = 0; i < 256; i++) dict.set(String.fromCharCode(i), i);
+                let dictSize = 256;
+                let w = '';
+                const codes = [];
+                for (let i = 0; i < bytes.length; i++) {
+                    const c = String.fromCharCode(bytes[i]);
+                    const wc = w + c;
+                    if (dict.has(wc)) {
+                        w = wc;
+                    } else {
+                        codes.push(dict.get(w));
+                        dict.set(wc, dictSize++);
+                        if (dictSize >= CLEAR) {
+                            codes.push(CLEAR);
+                            dict = new Map();
+                            for (let j = 0; j < 256; j++) dict.set(String.fromCharCode(j), j);
+                            dictSize = 256;
+                        }
+                        w = c;
+                    }
+                }
+                if (w !== '') codes.push(dict.get(w));
+                const out = [];
+                let bitBuffer = 0, bitCount = 0;
+                for (let k = 0; k < codes.length; k++) {
+                    const code = codes[k] & 0x0fff;
+                    bitBuffer |= (code << bitCount);
+                    bitCount += 12;
+                    while (bitCount >= 8) {
+                        out.push(bitBuffer & 0xff);
+                        bitBuffer >>= 8;
+                        bitCount -= 8;
+                    }
+                }
+                if (bitCount > 0) out.push(bitBuffer & 0xff);
+                return new Uint8Array(out);
+            }
+            static lzwDecompress(packed){
+                const CLEAR = 4095;
+                const codes = [];
+                let bitBuffer = 0, bitCount = 0;
+                for (let i = 0; i < packed.length; i++) {
+                    bitBuffer |= (packed[i] << bitCount);
+                    bitCount += 8;
+                    while (bitCount >= 12) {
+                        const code = bitBuffer & 0x0fff;
+                        codes.push(code);
+                        bitBuffer >>= 12;
+                        bitCount -= 12;
+                    }
+                }
+                const reset = () => {
+                    const dict = [];
+                    for (let i = 0; i < 256; i++) dict[i] = String.fromCharCode(i);
+                    return { dict, size: 256 };
+                };
+                let { dict, size } = reset();
+                let w = '';
+                let result = '';
+                for (let i = 0; i < codes.length; i++) {
+                    const k = codes[i];
+                    if (k === CLEAR) { ({ dict, size } = reset()); w = ''; continue; }
+                    let entry;
+                    if (k < size) entry = dict[k];
+                    else if (k === size && w) entry = w + w[0];
+                    else return new Uint8Array(0);
+                    result += entry;
+                    if (w) dict[size++] = w + entry[0];
+                    w = entry;
+                }
+                const out = new Uint8Array(result.length);
+                for (let i = 0; i < result.length; i++) out[i] = result.charCodeAt(i) & 0xff;
+                return out;
+            }
+            static encodeSharePayload(obj){
+                const json = JSON.stringify(obj || {});
+                const utf8 = new TextEncoder().encode(json);
+                const plain = Share.bytesToBase64Url(utf8);
+                const compressed = Share.bytesToBase64Url(Share.lzwCompress(utf8));
+                return (compressed.length + 2 < plain.length ? 'c~' + compressed : 'p~' + plain);
+            }
+            static decodeSharePayload(payload){
+                if (!payload) throw new Error('Empty payload');
+                const sep = payload.indexOf('~');
+                if (sep > 0 && sep < 4) {
+                    const mode = payload.slice(0, sep);
+                    const body = payload.slice(sep + 1);
+                    if (mode === 'c') {
+                        const bytes = Share.base64UrlToBytes(body);
+                        const dec = Share.lzwDecompress(bytes);
+                        const json = new TextDecoder().decode(dec);
+                        return JSON.parse(json);
+                    } else if (mode === 'p') {
+                        const bytes = Share.base64UrlToBytes(body);
+                        const json = new TextDecoder().decode(bytes);
+                        return JSON.parse(json);
+                    }
+                }
+                const bytes = Share.base64UrlToBytes(payload);
+                const json = new TextDecoder().decode(bytes);
+                return JSON.parse(json);
+            }
+            openModal(url){
+                if (!this.modal || !this.inputEl) return;
+                this.inputEl.value = url;
+                this.modal.classList.add('open');
+                this.modal.setAttribute('aria-hidden', 'false');
+                setTimeout(() => { try { this.inputEl.focus(); this.inputEl.select(); } catch(_) {} }, 0);
+            }
+            closeModal(){
+                if (!this.modal) return;
+                this.modal.classList.remove('open');
+                this.modal.setAttribute('aria-hidden', 'true');
+            }
+            setCopyDefaultIcon(){
+                if (this.copyBtn) this.copyBtn.innerHTML = '<img src="assets/icons/copy-icon.svg" alt="" class="icon-img" width="18" height="18">';
+            }
+            attachCopy(){
+                if (this.copyBtn && this.inputEl) {
+                    this.copyBtn.addEventListener('click', async () => {
+                        try {
+                            await navigator.clipboard.writeText(this.inputEl.value);
+                            this.copyBtn.textContent = '✓';
+                            setTimeout(() => this.setCopyDefaultIcon(), 1000);
+                        } catch (err) {
+                            try {
+                                this.inputEl.select();
+                                document.execCommand('copy');
+                                this.copyBtn.textContent = '✓';
+                                setTimeout(() => this.setCopyDefaultIcon(), 1000);
+                            } catch(_) {}
+                        }
+                    });
+                }
+            }
+            attachModalEvents(){
+                if (this.closeBtn) this.closeBtn.addEventListener('click', () => this.closeModal());
+                if (this.modal) this.modal.addEventListener('click', (e) => { if (e.target === this.modal) this.closeModal(); });
+                document.addEventListener('keydown', (e) => { if (e.key === 'Escape') this.closeModal(); });
+            }
+            handleExportClick(){
+                try{
+                    const settingsObj = (this.app.settings && this.app.settings.fetchExisting && this.app.settings.fetchExisting()) || { settings: {} };
+                    const payloadObj = {
+                        subjects: this.app.subjects || {},
+                        settings: settingsObj.settings || {}
+                    };
+                    const payload = Share.encodeSharePayload(payloadObj);
+                    const url = `${this.baseUrl}${payload}`;
+                    this.openModal(url);
+                } catch(err) {
+                    console.error('Export failed:', err);
+                }
+            }
+            maybeImportFromUrl(){
+                try {
+                    const path = location.pathname || '';
+                    const idx = path.indexOf(this.basePath);
+                    if (idx === -1) return false;
+                    const rest = path.slice(idx + this.basePath.length).replace(/^\/+/, '');
+                    if (!rest) return false;
+                    const parsed = Share.decodeSharePayload(rest);
+                    if (!parsed || typeof parsed !== 'object') throw new Error('Invalid data');
+                    // Accept either flat subjects map or { subjects, settings }
+                    const subjects = parsed.subjects || parsed || {};
+                    this.app.subjects = subjects;
+                    this.app.storage.save(this.app.subjects);
+                    if (parsed.settings && this.app.settings && this.app.settings.settingsStorage) {
+                        this.app.settings.settingsStorage.save({ settings: parsed.settings });
+                    }
+                    location.replace(this.baseUrl);
+                    return true;
+                } catch (err) {
+                    console.error('URL import failed:', err);
+                    return false;
+                }
+            }
+            init(){
+                this.attachCopy();
+                this.attachModalEvents();
+            }
+        }
+
+        // Study Plan: compute and render a daily allocation plan based on
+        // subjects' test dates, blocks per day, and a temperature factor.
+        class StudyPlan {
+            constructor(app){
+                this.app = app; // expects Subjects instance
+            }
+
+            static yyyymmdd(d){
+                const pad2 = (n) => String(n).padStart(2, '0');
+                return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+            }
+
+            static formatDayLabel(d){
+                const pad2 = (n) => String(n).padStart(2, '0');
+                const weekdays = i18n.t('weekdays');
+                return `${pad2(d.getMonth()+1)}-${pad2(d.getDate())} (${weekdays[d.getDay()]})`;
+            }
+
+            static parseLocalYMD(dateStr){
+                const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr);
+                if (!m) return null;
+                const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+                if (isNaN(d.getTime())) return null;
+                d.setHours(0,0,0,0);
+                return d;
+            }
+
+            static daysBetween(fromDate, toDate){
+                const a = Date.UTC(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
+                const b = Date.UTC(toDate.getFullYear(), toDate.getMonth(), toDate.getDate());
+                return Math.round((b - a) / (24*60*60*1000));
+            }
+
+            // Convert subjects to a map { name: Date }
+            getExamDates(){
+                const subjects = this.app?.subjects || {};
+                const out = {};
+                for (const [_, s] of Object.entries(subjects)){
+                    const name = (s?.subjectName || '').trim();
+                    const dateStr = (s?.testDate || '').trim();
+                    if (!name || !dateStr) continue;
+                    const d = StudyPlan.parseLocalYMD(dateStr);
+                    if (!d) continue;
+                    out[name] = d;
+                }
+                return out;
+            }
+
+            compute(blocosPorDia, temperatura){
+                const examDates = this.getExamDates();
+                const names = Object.keys(examDates);
+                if (!names.length) return { columns: [], rows: [] };
+
+                // date range: today .. last exam date
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                const lastDate = new Date(Math.max(...Object.values(examDates).map(d => d.getTime())));
+                if (isNaN(lastDate.getTime())) return { columns: [], rows: [] };
+
+                const days = StudyPlan.daysBetween(today, lastDate);
+                if (days < 0) return { columns: [], rows: [] };
+
+                const dates = [];
+                for (let i=0;i<=days;i++){
+                    const d = new Date(today);
+                    d.setDate(d.getDate()+i);
+                    dates.push(d);
+                }
+
+                const deltaMax = StudyPlan.daysBetween(today, lastDate);
+
+                // df_numeric analogue
+                const rows = [];
+                for (const d of dates){
+                    // raw scores per subject
+                    const rawScores = {};
+                    let totalRaw = 0;
+                    for (const name of names){
+                        const diff = StudyPlan.daysBetween(d, examDates[name]);
+                        if (diff <= 0){
+                            rawScores[name] = 0; // exam day or past
+                        } else {
+                            const raw = (deltaMax - diff + 1);
+                            rawScores[name] = raw;
+                            totalRaw += raw;
+                        }
+                    }
+
+                    // If nothing to study, fill with placeholders later
+                    if (totalRaw === 0){
+                        const display = {};
+                        for (const name of names){
+                            const diff = StudyPlan.daysBetween(d, examDates[name]);
+                            if (diff === 0) display[name] = '✅';
+                            else display[name] = ' ';
+                        }
+                        rows.push({ date: new Date(d), display });
+                        continue;
+                    }
+
+                    // Apply temperature to allocations
+                    const adjusted = {};
+                    let adjustedSum = 0;
+                    for (const name of names){
+                        const score = rawScores[name];
+                        if (score === 0){ adjusted[name] = 0; continue; }
+                        const frac = score / totalRaw;
+                        const val = (Math.pow(frac + 1, temperatura) - 1);
+                        adjusted[name] = val;
+                        adjustedSum += val;
+                    }
+
+                    // Normalize to blocosPorDia
+                    const alloc = {};
+                    for (const name of names){
+                        alloc[name] = adjustedSum > 0 ? (adjusted[name] / adjustedSum) * blocosPorDia : 0;
+                    }
+
+                    // Integer allocation that sums to blocs
+                    const integers = {};
+                    const fractions = [];
+                    let totalInt = 0;
+                    for (const name of names){
+                        const n = alloc[name] || 0;
+                        const i = Math.floor(n);
+                        integers[name] = i;
+                        totalInt += i;
+                        fractions.push([name, n - i]);
+                    }
+                    let remaining = blocosPorDia - totalInt;
+                    fractions.sort((a,b) => b[1] - a[1]);
+                    for (const [name, _f] of fractions){
+                        if (remaining <= 0) break;
+                        integers[name] += 1;
+                        remaining -= 1;
+                    }
+
+                    // Build display cell values
+                    const display = {};
+                    for (const name of names){
+                        const diff = StudyPlan.daysBetween(d, examDates[name]);
+                        const v = integers[name];
+                        if (diff <= 0) display[name] = (diff === 0 ? '✅' : ' ');
+                        else if (v === 0) display[name] = '-';
+                        else display[name] = `${v} 📝`;
+                    }
+                    rows.push({ date: new Date(d), display });
+                }
+
+                return { columns: names, rows };
+            }
+
+            render(){
+                const container = document.getElementById('study-plan');
+                if (!container) return;
+                const settingsObj = this.app.settings.fetchExisting()?.settings || {};
+                const clamp = (v, lo, hi, def) => {
+                    const n = Math.floor(Number(v));
+                    if (!Number.isFinite(n)) return def;
+                    return Math.min(hi, Math.max(lo, n));
+                };
+                const blocks = clamp(settingsObj['hours-per-day'], 2, 99, 3);
+                const temp = clamp(settingsObj['specificity-degree'], 1, 99, 10);
+
+                const { columns, rows } = this.compute(blocks, temp);
+                if (!columns.length || !rows.length){
+                    container.innerHTML = `<div class="empty">${i18n.t('emptyPlan')}</div>`;
+                    return;
+                }
+
+                // Build table
+                let html = '<table class="studyplan-table">';
+                html += '<colgroup><col class="col-day">';
+                for (let i=0;i<columns.length;i++) html += '<col class="col-subject">';
+                html += '</colgroup>';
+                html += `<thead><tr><th>${i18n.t('day')}</th>` + columns.map(c => `<th>${c}</th>`).join('') + '</tr></thead>';
+                html += '<tbody>';
+                const todayStr = StudyPlan.yyyymmdd(new Date());
+                for (const row of rows){
+                    const dstr = StudyPlan.yyyymmdd(row.date);
+                    const trClass = dstr === todayStr ? ' class="is-today"' : '';
+                    html += `<tr${trClass}><td>${StudyPlan.formatDayLabel(row.date)}</td>`;
+                    for (const c of columns){
+                        html += `<td>${row.display[c] ?? ''}</td>`;
+                    }
+                    html += '</tr>';
+                }
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Derive base path from current location (project page or root)
+            const BASE_PATH = (() => {
+                const p = (location.pathname || '/');
+                return p.endsWith('/') ? p : p.replace(/[^/]*$/, '');
+            })();
+            const BASE_URL = location.origin + BASE_PATH;
+
+            const app = new Subjects();
+            const studyPlan = new StudyPlan(app);
+
+            i18n.apply();
+            const langSelect = document.getElementById('lang-select');
+            if (langSelect) {
+                langSelect.value = i18n.lang;
+                langSelect.addEventListener('change', () => {
+                    i18n.set(langSelect.value);
+                    app.render();
+                    studyPlan.render();
+                });
+            }
+
+            // Wire up the settings inputs to save changes
+            const hoursPerDay = document.getElementById('hours-per-day');
+            if (hoursPerDay) {
+                hoursPerDay.addEventListener('change', () => {
+                    const clamp = (v, lo, hi, def) => {
+                        const n = Math.floor(Number(v));
+                        if (!Number.isFinite(n)) return def;
+                        return Math.min(hi, Math.max(lo, n));
+                    };
+                    const clamped = clamp(hoursPerDay.value, 2, 99, 2);
+                    hoursPerDay.value = clamped;
+                    const settingsObj = app.settings.fetchExisting() || { settings: {} };
+                    settingsObj.settings['hours-per-day'] = clamped;
+                    app.settings.settingsStorage.save(settingsObj);
+                    app.render();
+                    studyPlan.render();
+                });
+            }
+            const specificityDegree = document.getElementById('specificity-degree');
+            if (specificityDegree) {
+                specificityDegree.addEventListener('change', () => {
+                    const clamp = (v, lo, hi, def) => {
+                        const n = Math.floor(Number(v));
+                        if (!Number.isFinite(n)) return def;
+                        return Math.min(hi, Math.max(lo, n));
+                    };
+                    const clamped = clamp(specificityDegree.value, 1, 99, 1);
+                    specificityDegree.value = clamped;
+                    const settingsObj = app.settings.fetchExisting() || { settings: {} };
+                    settingsObj.settings['specificity-degree'] = clamped;
+                    app.settings.settingsStorage.save(settingsObj);
+                    app.render();
+                    studyPlan.render();
+                });
+            }
+
+            // Set minimum date (tomorrow) for the Test Date input
+            const testDateInput = document.getElementById('test-date');
+            if (testDateInput) {
+                const pad2 = (n) => String(n).padStart(2, '0');
+                const d = new Date();
+                d.setHours(0,0,0,0);
+                d.setDate(d.getDate() + 1);
+                const minStr = `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+                testDateInput.min = minStr;
+            }
+
+            // New subject form submission
+            const newSubjectForm = document.getElementById('new-subject-form');
+            if (newSubjectForm) {
+                newSubjectForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const nameEl = document.getElementById('subject-name');
+                    const descEl = document.getElementById('subject-description');
+                    const dateEl = document.getElementById('test-date');
+                    const timeEl = document.getElementById('test-time');
+                    const locEl = document.getElementById('test-location');
+                    const name = (nameEl?.value || '').trim();
+                    const desc = (descEl?.value || '').trim();
+                    const date = (dateEl?.value || '').trim();
+                    const time = (timeEl?.value || '').trim();
+                    const loc = (locEl?.value || '').trim();
+                    // Require both name and date
+                    if (!name || !date) {
+                        // Let native validation show messages if available
+                        if (nameEl && nameEl.reportValidity) nameEl.reportValidity();
+                        if (dateEl && dateEl.reportValidity) dateEl.reportValidity();
+                        return;
+                    }
+                    // Enforce date must be at least tomorrow (no past or today)
+                    const pad2 = (n) => String(n).padStart(2, '0');
+                    const t = new Date();
+                    t.setHours(0,0,0,0);
+                    t.setDate(t.getDate() + 1);
+                    const minDateStr = `${t.getFullYear()}-${pad2(t.getMonth()+1)}-${pad2(t.getDate())}`;
+                    if (date < minDateStr) {
+                        if (dateEl && dateEl.setCustomValidity) {
+                            dateEl.setCustomValidity(i18n.t('dateFromTomorrow'));
+                            dateEl.reportValidity();
+                        }
+                        return;
+                    } else if (dateEl && dateEl.setCustomValidity) {
+                        dateEl.setCustomValidity('');
+                    }
+                    app.subjects = app.subjects || {};
+                    if (app.add(name, desc, date, time, loc)) {
+                        if (nameEl) nameEl.value = '';
+                        if (descEl) descEl.value = '';
+                        if (dateEl) dateEl.value = '';
+                        if (timeEl) timeEl.value = '';
+                        if (locEl) locEl.value = '';
+                        app.render();
+                        studyPlan.render();
+                    }
+                });
+            }
+
+            // Subjects list row actions (edit/save/cancel/delete)
+            const subjectsListEl = document.getElementById('subjects-list');
+            if (subjectsListEl) {
+                subjectsListEl.addEventListener('click', (e) => {
+                    const btn = e.target.closest('button[data-action]');
+                    if (!btn) return;
+                    const action = btn.dataset.action;
+                    const id = btn.dataset.id;
+                    if (!action || !id) return;
+                    switch (action) {
+                        case 'edit':
+                            app.editingId = id;
+                            app.render();
+                            studyPlan.render();
+                            break;
+                        case 'cancel':
+                            app.editingId = null;
+                            app.render();
+                            studyPlan.render();
+                            break;
+                        case 'save': {
+                            const row = subjectsListEl.querySelector(`tr[data-id="${id}"]`);
+                            if (!row) return;
+                            const name = (row.querySelector('input[name="name"]')?.value || '').trim();
+                            const desc = (row.querySelector('input[name="description"]')?.value || '').trim();
+                            const date = (row.querySelector('input[name="date"]')?.value || '').trim();
+                            const time = (row.querySelector('input[name="time"]')?.value || '').trim();
+                            const loc = (row.querySelector('input[name="location"]')?.value || '').trim();
+                            if (!name) return;
+                            if (app.update(id, name, desc, date, time, loc)) {
+                                app.editingId = null;
+                                app.render();
+                                studyPlan.render();
+                            }
+                            break; }
+                        case 'delete':
+                            if (app.remove(id)) { app.render(); studyPlan.render(); }
+                            break;
+                    }
+                });
+            }
+
+            // Theme toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            const theme = new Theme(themeToggle);
+            theme.init();
+
+            // Share/export modal wiring
+            const exportBtn = document.getElementById('export-plans');
+            const modal = document.getElementById('export-modal');
+            const shareInput = document.getElementById('share-url');
+            const copyBtn = document.getElementById('copy-url');
+            const closeBtn = document.getElementById('close-modal');
+            const share = new Share(app, BASE_URL, BASE_PATH, modal, shareInput, copyBtn, closeBtn);
+            share.init();
+            if (exportBtn) exportBtn.addEventListener('click', () => share.handleExportClick());
+
+            app.render();
+            studyPlan.render();
+            share.maybeImportFromUrl();
+
+            // Register Service Worker for PWA/offline support
+            if ('serviceWorker' in navigator) {
+                const scope = BASE_PATH;
+                navigator.serviceWorker.register('sw.js', { scope }).catch(err => {
+                    console.warn('SW registration failed:', err);
+                });
+            }
+
+            // Minimal Install Banner (Android/desktop with beforeinstallprompt)
+            const installBanner = document.getElementById('install-banner');
+            const installBtn = document.getElementById('install-cta');
+            const installClose = document.getElementById('install-close');
+            let deferredPrompt = null;
+
+            const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            const isMobile = () => (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            const showInstallBanner = () => {
+                if (!installBanner) return;
+                installBanner.classList.add('show');
+                installBanner.setAttribute('aria-hidden', 'false');
+            };
+            const hideInstallBanner = () => {
+                if (!installBanner) return;
+                installBanner.classList.remove('show');
+                installBanner.setAttribute('aria-hidden', 'true');
+            };
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // Only show on mobile, not if already installed, and not if dismissed
+                if (isStandalone() || !isMobile() || localStorage.getItem('installBannerDismissed') === '1') return;
+                e.preventDefault();
+                deferredPrompt = e;
+                showInstallBanner();
+            });
+            window.addEventListener('appinstalled', () => {
+                deferredPrompt = null;
+                hideInstallBanner();
+                localStorage.setItem('installBannerDismissed', '1');
+            });
+            if (installBtn) installBtn.addEventListener('click', async () => {
+                try {
+                    if (!deferredPrompt) return hideInstallBanner();
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+                    hideInstallBanner();
+                    if (outcome !== 'accepted') localStorage.setItem('installBannerDismissed', '1');
+                } catch (_) { hideInstallBanner(); }
+            });
+            if (installClose) installClose.addEventListener('click', () => {
+                localStorage.setItem('installBannerDismissed', '1');
+                hideInstallBanner();
+            });
+        });
+    </script>
+    </body>
+</html>
