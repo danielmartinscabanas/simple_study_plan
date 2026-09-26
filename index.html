@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="assets/css/styles.css?v=10">
+    <link rel="stylesheet" href="assets/css/styles.css?v=16">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='50%25' x='50%25' dominant-baseline='middle' text-anchor='middle' font-size='48'%3E%F0%9F%93%9A%3C/text%3E%3C/svg%3E">
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#349a79">
@@ -24,6 +24,50 @@
             </select>
         </div>
     </div>
+    <section id="pomodoro-section">
+        <h3 data-i18n="pomodoro">Pomodoro</h3>
+        <hr />
+        <div class="pomodoro-layout">
+            <div class="pomodoro-left">
+                <div class="pomodoro-modes" role="tablist">
+                    <button type="button" class="pomodoro-mode is-active" data-phase="focus" data-i18n="focus">Focus</button>
+                    <button type="button" class="pomodoro-mode" data-phase="break" data-i18n="shortBreak">Short Break</button>
+                    <button type="button" class="pomodoro-mode" data-phase="long" data-i18n="longBreak">Long Break</button>
+                </div>
+                <div class="pomodoro-display" id="pomodoro-display">25:00</div>
+                <button type="button" id="pomodoro-start" class="pomodoro-start-btn" data-i18n="start">Start</button>
+                <button type="button" id="pomodoro-reset" class="pomodoro-reset-btn" data-i18n="reset">Reset</button>
+                <div class="pomodoro-settings" id="pomodoro-settings">
+                    <div class="setting-item" data-tooltip="Length of each focus study block in minutes (1–99)." data-i18n-tooltip="tooltipFocusMin">
+                        <label for="pomodoro-focus-min" data-i18n="focusMinutes">Minutes per block</label>
+                        <input id="pomodoro-focus-min" type="number" min="1" max="99" step="1" value="25" />
+                    </div>
+                    <div class="setting-item" data-tooltip="Length of the short break after each focus block (1–99)." data-i18n-tooltip="tooltipBreakMin">
+                        <label for="pomodoro-break-min" data-i18n="breakMinutes">Break minutes</label>
+                        <input id="pomodoro-break-min" type="number" min="1" max="99" step="1" value="5" />
+                    </div>
+                    <div class="setting-item" data-tooltip="Length of the long break in minutes (1–99)." data-i18n-tooltip="tooltipLongMin">
+                        <label for="pomodoro-long-min" data-i18n="longMinutes">Long break minutes</label>
+                        <input id="pomodoro-long-min" type="number" min="1" max="99" step="1" value="15" />
+                    </div>
+                </div>
+            </div>
+            <div class="pomodoro-divider" aria-hidden="true"></div>
+            <div class="pomodoro-right">
+                <div class="pomodoro-settings" id="pomodoro-active-wrap" hidden>
+                    <div class="setting-item">
+                        <label for="pomodoro-active-subject" data-i18n="blockSubject">Count block for</label>
+                        <select id="pomodoro-active-subject"></select>
+                    </div>
+                </div>
+                <div class="pomodoro-stats" id="pomodoro-stats"></div>
+            </div>
+        </div>
+        <div class="pomodoro-alarm" id="pomodoro-alarm" hidden>
+            <span id="pomodoro-alarm-text" data-i18n="alarmBody">Time is up — dismiss to continue.</span>
+            <button type="button" id="pomodoro-stop-alarm" class="add-subject-btn" data-i18n="stopAlarm">Stop alarm</button>
+        </div>
+    </section>
     <section id="settings-section">
         <h3 data-i18n="settings">Settings</h3>
         <hr />
@@ -105,7 +149,26 @@
                 "day": "Day",
                 "emptyPlan": "No study plan yet. Add subjects with future dates.",
                 "dateFromTomorrow": "Please choose a date from tomorrow onwards.",
-                "weekdays": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+                "weekdays": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+                "pomodoro": "Pomodoro",
+                "focus": "Pomodoro",
+                "shortBreak": "Short Break",
+                "longBreak": "Long Break",
+                "break": "Break",
+                "start": "Start",
+                "pause": "Pause",
+                "reset": "Reset",
+                "focusMinutes": "Focus",
+                "breakMinutes": "Short",
+                "longMinutes": "Long",
+                "blocksStudied": "Blocks studied",
+                "blockSubject": "Count block for",
+                "stopAlarm": "Stop alarm",
+                "alarmTitle": "Pomodoro",
+                "alarmBody": "Time is up — dismiss to continue.",
+                "tooltipFocusMin": "Length of each focus study block in minutes (1–99).",
+                "tooltipBreakMin": "Length of the short break after each focus block (1–99).",
+                "tooltipLongMin": "Length of the long break in minutes (1–99)."
             },
             "pt": {
                 "appTitle": "Simple Study Plan",
@@ -138,7 +201,26 @@
                 "day": "Dia",
                 "emptyPlan": "Nenhum plano ainda. Adicione matérias com datas futuras.",
                 "dateFromTomorrow": "Escolha uma data a partir de amanhã.",
-                "weekdays": ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"]
+                "weekdays": ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"],
+                "pomodoro": "Pomodoro",
+                "focus": "Pomodoro",
+                "shortBreak": "Pausa curta",
+                "longBreak": "Pausa longa",
+                "break": "Pausa",
+                "start": "Iniciar",
+                "pause": "Pausar",
+                "reset": "Reiniciar",
+                "focusMinutes": "Foco",
+                "breakMinutes": "Curta",
+                "longMinutes": "Longa",
+                "blocksStudied": "Blocos estudados",
+                "blockSubject": "Contar bloco para",
+                "stopAlarm": "Desativar alarme",
+                "alarmTitle": "Pomodoro",
+                "alarmBody": "Tempo esgotado — desative para continuar.",
+                "tooltipFocusMin": "Duração de cada bloco de foco em minutos (1–99).",
+                "tooltipBreakMin": "Duração da pausa curta após cada bloco de foco (1–99).",
+                "tooltipLongMin": "Duração da pausa longa em minutos (1–99)."
             }
         };
 
@@ -855,6 +937,443 @@
             }
         }
 
+        class Pomodoro {
+            constructor(app){
+                this.app = app;
+                this.storage = new JsonStorage('pomodoro');
+                this.phase = 'focus';
+                this.running = false;
+                this.alarming = false;
+                this.endsAt = null;
+                this.remainingMs = 0;
+                this.tickTimer = null;
+                this.beepTimer = null;
+                this.notifyTimer = null;
+                this.titleTimer = null;
+                this.audioCtx = null;
+                this.lastNotification = null;
+                this.titleFlashOn = false;
+                this.completedPhase = null;
+                this.activeSubjectId = null;
+                this.blocksBySubject = {};
+                this.loadState();
+            }
+
+            todayStr(){
+                const d = new Date();
+                const pad2 = (n) => String(n).padStart(2, '0');
+                return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+            }
+
+            clampMin(v, def){
+                const n = Math.floor(Number(v));
+                if (!Number.isFinite(n)) return def;
+                return Math.min(99, Math.max(1, n));
+            }
+
+            clampBlocks(v){
+                const n = Math.floor(Number(v));
+                if (!Number.isFinite(n) || n < 0) return 0;
+                return Math.min(999, n);
+            }
+
+            subjectEntries(){
+                const subjects = (this.app && (this.app.storage.load() || this.app.subjects)) || {};
+                return Object.entries(subjects).sort((a, b) => {
+                    const ao = (a[1] && typeof a[1].order === 'number') ? a[1].order : 0;
+                    const bo = (b[1] && typeof b[1].order === 'number') ? b[1].order : 0;
+                    return ao - bo;
+                });
+            }
+
+            loadState(){
+                const raw = this.storage.load() || {};
+                const day = this.todayStr();
+                this.focusMin = this.clampMin(raw.focusMin, 25);
+                this.breakMin = this.clampMin(raw.breakMin, 5);
+                this.longMin = this.clampMin(raw.longMin, 15);
+                const sameDay = raw.day === day;
+                this.blocksCompleted = (sameDay && typeof raw.blocksCompleted === 'number')
+                    ? this.clampBlocks(raw.blocksCompleted)
+                    : 0;
+                this.blocksBySubject = {};
+                if (sameDay && raw.blocksBySubject && typeof raw.blocksBySubject === 'object') {
+                    for (const [id, n] of Object.entries(raw.blocksBySubject)) {
+                        this.blocksBySubject[id] = this.clampBlocks(n);
+                    }
+                }
+                this.activeSubjectId = (typeof raw.activeSubjectId === 'string') ? raw.activeSubjectId : null;
+                this.remainingMs = this.focusMin * 60 * 1000;
+                this.saveState();
+            }
+
+            saveState(){
+                this.storage.save({
+                    focusMin: this.focusMin,
+                    breakMin: this.breakMin,
+                    longMin: this.longMin,
+                    blocksCompleted: this.blocksCompleted,
+                    blocksBySubject: this.blocksBySubject,
+                    activeSubjectId: this.activeSubjectId,
+                    day: this.todayStr()
+                });
+            }
+
+            phaseDurationMs(){
+                if (this.phase === 'long') return this.longMin * 60 * 1000;
+                if (this.phase === 'break') return this.breakMin * 60 * 1000;
+                return this.focusMin * 60 * 1000;
+            }
+
+            resolveActiveSubjectId(entries){
+                if (!entries.length) {
+                    this.activeSubjectId = null;
+                    return null;
+                }
+                if (entries.some(([id]) => id === this.activeSubjectId)) return this.activeSubjectId;
+                this.activeSubjectId = entries[0][0];
+                return this.activeSubjectId;
+            }
+
+            incrementBlock(){
+                const entries = this.subjectEntries();
+                if (!entries.length) {
+                    this.blocksCompleted = this.clampBlocks(this.blocksCompleted + 1);
+                } else {
+                    const id = this.resolveActiveSubjectId(entries);
+                    this.blocksBySubject[id] = this.clampBlocks((this.blocksBySubject[id] || 0) + 1);
+                }
+                this.saveState();
+            }
+
+            formatMs(ms){
+                const total = Math.max(0, Math.ceil(ms / 1000));
+                const m = Math.floor(total / 60);
+                const s = total % 60;
+                return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            }
+
+            ensureAudio(){
+                if (!this.audioCtx) {
+                    const Ctx = window.AudioContext || window.webkitAudioContext;
+                    if (!Ctx) return null;
+                    this.audioCtx = new Ctx();
+                }
+                if (this.audioCtx.state === 'suspended') this.audioCtx.resume().catch(() => {});
+                return this.audioCtx;
+            }
+
+            playBeep(){
+                const ctx = this.ensureAudio();
+                if (!ctx) return;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.value = 880;
+                gain.gain.value = 0.0001;
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                const now = ctx.currentTime;
+                gain.gain.setValueAtTime(0.0001, now);
+                gain.gain.exponentialRampToValueAtTime(0.2, now + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            }
+
+            requestNotifyPermission(){
+                if (!('Notification' in window)) return;
+                if (Notification.permission === 'default') {
+                    Notification.requestPermission().catch(() => {});
+                }
+            }
+
+            fireNotification(){
+                if (!('Notification' in window) || Notification.permission !== 'granted') return;
+                try {
+                    if (this.lastNotification) {
+                        try { this.lastNotification.close(); } catch (_) {}
+                    }
+                    this.lastNotification = new Notification(i18n.t('alarmTitle'), {
+                        body: i18n.t('alarmBody'),
+                        requireInteraction: true,
+                        tag: 'ssp-pomodoro-alarm',
+                        renotify: true
+                    });
+                } catch (_) {}
+            }
+
+            startAlarm(){
+                this.alarming = true;
+                this.running = false;
+                this.endsAt = null;
+                this.stopTick();
+                const alarmEl = document.getElementById('pomodoro-alarm');
+                if (alarmEl) alarmEl.hidden = false;
+                this.ensureAudio();
+                this.playBeep();
+                if (this.beepTimer) clearInterval(this.beepTimer);
+                this.beepTimer = setInterval(() => this.playBeep(), 1000);
+                this.fireNotification();
+                if (this.notifyTimer) clearInterval(this.notifyTimer);
+                this.notifyTimer = setInterval(() => this.fireNotification(), 3000);
+                if (this.titleTimer) clearInterval(this.titleTimer);
+                this.titleFlashOn = false;
+                this.titleTimer = setInterval(() => {
+                    this.titleFlashOn = !this.titleFlashOn;
+                    document.title = this.titleFlashOn ? `⏰ ${i18n.t('alarmTitle')}` : i18n.t('appTitle');
+                }, 800);
+                this.render();
+            }
+
+            stopAlarm(){
+                if (!this.alarming) return;
+                this.alarming = false;
+                if (this.beepTimer) { clearInterval(this.beepTimer); this.beepTimer = null; }
+                if (this.notifyTimer) { clearInterval(this.notifyTimer); this.notifyTimer = null; }
+                if (this.titleTimer) { clearInterval(this.titleTimer); this.titleTimer = null; }
+                if (this.lastNotification) {
+                    try { this.lastNotification.close(); } catch (_) {}
+                    this.lastNotification = null;
+                }
+                document.title = i18n.t('appTitle');
+                const alarmEl = document.getElementById('pomodoro-alarm');
+                if (alarmEl) alarmEl.hidden = true;
+                const finished = this.completedPhase || 'focus';
+                this.completedPhase = null;
+                if (finished === 'focus') {
+                    this.phase = 'break';
+                    this.remainingMs = this.breakMin * 60 * 1000;
+                    this.running = true;
+                    this.endsAt = Date.now() + this.remainingMs;
+                    this.startTick();
+                } else {
+                    this.phase = 'focus';
+                    this.remainingMs = this.focusMin * 60 * 1000;
+                    this.running = false;
+                    this.endsAt = null;
+                }
+                this.render();
+            }
+
+            startTick(){
+                this.stopTick();
+                this.tickTimer = setInterval(() => this.tick(), 250);
+            }
+
+            stopTick(){
+                if (this.tickTimer) { clearInterval(this.tickTimer); this.tickTimer = null; }
+            }
+
+            tick(){
+                if (!this.running || this.alarming || this.endsAt == null) return;
+                this.remainingMs = this.endsAt - Date.now();
+                if (this.remainingMs <= 0) {
+                    this.remainingMs = 0;
+                    this.onTimerComplete();
+                    return;
+                }
+                this.renderDisplayOnly();
+            }
+
+            onTimerComplete(){
+                this.running = false;
+                this.endsAt = null;
+                this.stopTick();
+                this.completedPhase = this.phase;
+                if (this.phase === 'focus') {
+                    this.incrementBlock();
+                }
+                this.startAlarm();
+            }
+
+            start(){
+                if (this.alarming) return;
+                if (this.running) {
+                    this.pause();
+                    return;
+                }
+                this.requestNotifyPermission();
+                this.ensureAudio();
+                if (this.remainingMs <= 0) this.remainingMs = this.phaseDurationMs();
+                this.running = true;
+                this.endsAt = Date.now() + this.remainingMs;
+                this.startTick();
+                this.render();
+            }
+
+            pause(){
+                if (this.alarming || !this.running) return;
+                this.remainingMs = Math.max(0, this.endsAt - Date.now());
+                this.running = false;
+                this.endsAt = null;
+                this.stopTick();
+                this.render();
+            }
+
+            reset(){
+                if (this.alarming) return;
+                this.running = false;
+                this.endsAt = null;
+                this.stopTick();
+                this.remainingMs = this.phaseDurationMs();
+                this.render();
+            }
+
+            setPhase(phase){
+                if (this.alarming) return;
+                if (phase !== 'focus' && phase !== 'break' && phase !== 'long') return;
+                this.running = false;
+                this.endsAt = null;
+                this.stopTick();
+                this.phase = phase;
+                this.remainingMs = this.phaseDurationMs();
+                this.render();
+            }
+
+            setFocusMin(v){
+                if (this.alarming || this.running) return;
+                this.focusMin = this.clampMin(v, 25);
+                if (this.phase === 'focus') this.remainingMs = this.focusMin * 60 * 1000;
+                this.saveState();
+                this.render();
+            }
+
+            setBreakMin(v){
+                if (this.alarming || this.running) return;
+                this.breakMin = this.clampMin(v, 5);
+                if (this.phase === 'break') this.remainingMs = this.breakMin * 60 * 1000;
+                this.saveState();
+                this.render();
+            }
+
+            setLongMin(v){
+                if (this.alarming || this.running) return;
+                this.longMin = this.clampMin(v, 15);
+                if (this.phase === 'long') this.remainingMs = this.longMin * 60 * 1000;
+                this.saveState();
+                this.render();
+            }
+
+            renderDisplayOnly(){
+                const display = document.getElementById('pomodoro-display');
+                if (display) display.textContent = this.formatMs(this.remainingMs);
+            }
+
+            esc(s){
+                return String(s ?? '').replace(/[&<>"']/g, (ch) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));
+            }
+
+            renderStats(){
+                const stats = document.getElementById('pomodoro-stats');
+                const wrap = document.getElementById('pomodoro-active-wrap');
+                const select = document.getElementById('pomodoro-active-subject');
+                if (!stats) return;
+                const entries = this.subjectEntries();
+                const active = document.activeElement;
+                if (!entries.length) {
+                    if (wrap) wrap.hidden = true;
+                    if (active && stats.contains(active) && active.matches('input[data-global-blocks]')) return;
+                    stats.innerHTML = `<div class="pomodoro-stat-row"><label for="pomodoro-blocks-global">${this.esc(i18n.t('blocksStudied'))}</label><input id="pomodoro-blocks-global" type="number" min="0" max="999" step="1" data-global-blocks value="${this.blocksCompleted}" /></div>`;
+                    return;
+                }
+                if (wrap) wrap.hidden = false;
+                const activeId = this.resolveActiveSubjectId(entries);
+                if (select && active !== select) {
+                    select.innerHTML = entries.map(([id, s]) => {
+                        const name = this.esc((s?.subjectName || '').trim() || id);
+                        const sel = id === activeId ? ' selected' : '';
+                        return `<option value="${this.esc(id)}"${sel}>${name}</option>`;
+                    }).join('');
+                }
+                if (active && stats.contains(active) && active.matches('input[data-subject-id]')) return;
+                stats.innerHTML = entries.map(([id, s]) => {
+                    const name = this.esc((s?.subjectName || '').trim() || id);
+                    const n = this.clampBlocks(this.blocksBySubject[id] || 0);
+                    return `<div class="pomodoro-stat-row"><label>${name}</label><input type="number" min="0" max="999" step="1" data-subject-id="${this.esc(id)}" value="${n}" /></div>`;
+                }).join('');
+            }
+
+            render(){
+                const display = document.getElementById('pomodoro-display');
+                const focusInput = document.getElementById('pomodoro-focus-min');
+                const breakInput = document.getElementById('pomodoro-break-min');
+                const longInput = document.getElementById('pomodoro-long-min');
+                const startBtn = document.getElementById('pomodoro-start');
+                const resetBtn = document.getElementById('pomodoro-reset');
+                const alarmEl = document.getElementById('pomodoro-alarm');
+                const activeLabel = document.querySelector('#pomodoro-active-wrap label');
+                if (display) display.textContent = this.formatMs(this.remainingMs);
+                if (activeLabel) activeLabel.textContent = i18n.t('blockSubject');
+                document.querySelectorAll('.pomodoro-mode').forEach((btn) => {
+                    const ph = btn.getAttribute('data-phase');
+                    btn.classList.toggle('is-active', ph === this.phase);
+                    const key = ph === 'break' ? 'shortBreak' : (ph === 'long' ? 'longBreak' : 'focus');
+                    btn.textContent = i18n.t(key);
+                    btn.disabled = this.alarming;
+                });
+                this.renderStats();
+                if (focusInput && document.activeElement !== focusInput) focusInput.value = this.focusMin;
+                if (breakInput && document.activeElement !== breakInput) breakInput.value = this.breakMin;
+                if (longInput && document.activeElement !== longInput) longInput.value = this.longMin;
+                const locked = this.alarming;
+                if (startBtn) {
+                    startBtn.disabled = locked;
+                    startBtn.textContent = i18n.t(this.running ? 'pause' : 'start');
+                }
+                if (resetBtn) resetBtn.disabled = locked;
+                if (focusInput) focusInput.disabled = locked || this.running;
+                if (breakInput) breakInput.disabled = locked || this.running;
+                if (longInput) longInput.disabled = locked || this.running;
+                if (alarmEl) alarmEl.hidden = !this.alarming;
+            }
+
+            init(){
+                document.getElementById('pomodoro-start')?.addEventListener('click', () => this.start());
+                document.getElementById('pomodoro-reset')?.addEventListener('click', () => this.reset());
+                document.getElementById('pomodoro-stop-alarm')?.addEventListener('click', () => this.stopAlarm());
+                document.querySelectorAll('.pomodoro-mode').forEach((btn) => {
+                    btn.addEventListener('click', () => this.setPhase(btn.getAttribute('data-phase')));
+                });
+                document.getElementById('pomodoro-focus-min')?.addEventListener('change', (e) => {
+                    this.setFocusMin(e.target.value);
+                    e.target.value = this.focusMin;
+                });
+                document.getElementById('pomodoro-break-min')?.addEventListener('change', (e) => {
+                    this.setBreakMin(e.target.value);
+                    e.target.value = this.breakMin;
+                });
+                document.getElementById('pomodoro-long-min')?.addEventListener('change', (e) => {
+                    this.setLongMin(e.target.value);
+                    e.target.value = this.longMin;
+                });
+                document.getElementById('pomodoro-active-subject')?.addEventListener('change', (e) => {
+                    this.activeSubjectId = e.target.value || null;
+                    this.saveState();
+                });
+                document.getElementById('pomodoro-stats')?.addEventListener('change', (e) => {
+                    const t = e.target;
+                    if (!(t instanceof HTMLInputElement)) return;
+                    if (t.hasAttribute('data-global-blocks')) {
+                        this.blocksCompleted = this.clampBlocks(t.value);
+                        t.value = this.blocksCompleted;
+                        this.saveState();
+                        return;
+                    }
+                    const sid = t.getAttribute('data-subject-id');
+                    if (sid) {
+                        this.blocksBySubject[sid] = this.clampBlocks(t.value);
+                        t.value = this.blocksBySubject[sid];
+                        this.saveState();
+                    }
+                });
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden && this.running && this.endsAt != null) this.tick();
+                });
+                this.render();
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             // Derive base path from current location (project page or root)
             const BASE_PATH = (() => {
@@ -865,15 +1384,17 @@
 
             const app = new Subjects();
             const studyPlan = new StudyPlan(app);
+            const pomo = new Pomodoro(app);
+            const rerender = () => { app.render(); studyPlan.render(); pomo.render(); };
 
             i18n.apply();
+            pomo.init();
             const langSelect = document.getElementById('lang-select');
             if (langSelect) {
                 langSelect.value = i18n.lang;
                 langSelect.addEventListener('change', () => {
                     i18n.set(langSelect.value);
-                    app.render();
-                    studyPlan.render();
+                    rerender();
                 });
             }
 
@@ -891,8 +1412,7 @@
                     const settingsObj = app.settings.fetchExisting() || { settings: {} };
                     settingsObj.settings['hours-per-day'] = clamped;
                     app.settings.settingsStorage.save(settingsObj);
-                    app.render();
-                    studyPlan.render();
+                    rerender();
                 });
             }
             const specificityDegree = document.getElementById('specificity-degree');
@@ -908,8 +1428,7 @@
                     const settingsObj = app.settings.fetchExisting() || { settings: {} };
                     settingsObj.settings['specificity-degree'] = clamped;
                     app.settings.settingsStorage.save(settingsObj);
-                    app.render();
-                    studyPlan.render();
+                    rerender();
                 });
             }
 
@@ -968,8 +1487,7 @@
                         if (dateEl) dateEl.value = '';
                         if (timeEl) timeEl.value = '';
                         if (locEl) locEl.value = '';
-                        app.render();
-                        studyPlan.render();
+                        rerender();
                     }
                 });
             }
@@ -986,13 +1504,11 @@
                     switch (action) {
                         case 'edit':
                             app.editingId = id;
-                            app.render();
-                            studyPlan.render();
+                            rerender();
                             break;
                         case 'cancel':
                             app.editingId = null;
-                            app.render();
-                            studyPlan.render();
+                            rerender();
                             break;
                         case 'save': {
                             const row = subjectsListEl.querySelector(`tr[data-id="${id}"]`);
@@ -1005,12 +1521,11 @@
                             if (!name) return;
                             if (app.update(id, name, desc, date, time, loc)) {
                                 app.editingId = null;
-                                app.render();
-                                studyPlan.render();
+                                rerender();
                             }
                             break; }
                         case 'delete':
-                            if (app.remove(id)) { app.render(); studyPlan.render(); }
+                            if (app.remove(id)) { rerender(); }
                             break;
                     }
                 });
@@ -1031,8 +1546,7 @@
             share.init();
             if (exportBtn) exportBtn.addEventListener('click', () => share.handleExportClick());
 
-            app.render();
-            studyPlan.render();
+            rerender();
             share.maybeImportFromUrl();
 
             // Register Service Worker for PWA/offline support
