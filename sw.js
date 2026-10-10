@@ -1,3 +1,5 @@
+const CACHE_NAME = 'ssp-v1';
+
 const ASSETS = [
   '/simple_study_plan/',
   '/simple_study_plan/index.html',

@@ -11,7 +11,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
     <title data-i18n="appTitle">Simple Study Plan</title>
-    <script async type='text/javascript' src='https://static.klaviyo.com/onsite/js/VM2FeW/klaviyo.js?company_id=VM2FeW'></script>
 </head>
 <body>
     <div class="page-header">
@@ -424,6 +423,16 @@
                 }
             }
 
+            // An exam is past once its date+time has passed; without a time, after that day ends.
+            static isPast(subject, now = new Date()){
+                const d = StudyPlan.parseLocalYMD((subject?.testDate || '').trim());
+                if (!d) return false;
+                const t = /^(\d{2}):(\d{2})/.exec((subject?.testTime || '').trim());
+                if (t) d.setHours(Number(t[1]), Number(t[2]), 0, 0);
+                else d.setDate(d.getDate() + 1);
+                return now >= d;
+            }
+
             render(){
                 const hoursPerDay = document.getElementById('hours-per-day');
                 const specificityDegree = document.getElementById('specificity-degree');
@@ -471,10 +480,12 @@
                         '</colgroup>';
                 html += `<thead><tr><th>${i18n.t('name')}</th><th>${i18n.t('description')}</th><th>${i18n.t('date')}</th><th>${i18n.t('time')}</th><th>${i18n.t('location')}</th><th class="actions-col"></th></tr></thead>`;
                 html += '<tbody>';
-                entries.forEach(([id, subject], idx) => {
+                const now = new Date();
+                const nextId = entries.find(([, s]) => !Subjects.isPast(s, now))?.[0];
+                entries.forEach(([id, subject]) => {
                     const isEditing = this.editingId === id;
-                    const isNext = idx === 0;
-                    const rowClass = isNext ? ' class="is-next"' : '';
+                    const rowClass = id === nextId ? ' class="is-next"'
+                        : Subjects.isPast(subject, now) ? ' class="is-past"' : '';
                     const name = esc(subject?.subjectName);
                     const desc = esc(subject?.subjectDescription);
                     const date = esc(subject?.testDate);
@@ -1387,6 +1398,16 @@
             const studyPlan = new StudyPlan(app);
             const pomo = new Pomodoro(app);
             const rerender = () => { app.render(); studyPlan.render(); pomo.render(); };
+
+            // Refresh the subjects table when an exam's time passes, so the "next" highlight moves on.
+            const pastSignature = () => Object.values(app.subjects || {}).map(s => Subjects.isPast(s) ? 1 : 0).join('');
+            let lastPastSignature = null;
+            setInterval(() => {
+                const sig = pastSignature();
+                if (sig === lastPastSignature || app.editingId !== null) return;
+                if (lastPastSignature !== null) app.render();
+                lastPastSignature = sig;
+            }, 30000);
 
             i18n.apply();
             pomo.init();
